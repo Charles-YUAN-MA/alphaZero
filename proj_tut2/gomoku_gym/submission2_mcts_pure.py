@@ -1,3 +1,4 @@
+from cmath import sqrt
 import numpy as np
 import copy
 from operator import itemgetter
@@ -45,6 +46,8 @@ class TreeNode(object):
         plus bonus u(P).
         Return: A tuple of (action, next_node)
         """
+        
+        #print("c_puct",c_puct)
         return max(self._children.items(),
                    key=lambda act_node: act_node[1].get_value(c_puct))
 
@@ -58,7 +61,8 @@ class TreeNode(object):
         # TODO: assign self._Q by replacing None, refer to tutorial equation
         # Tips: self.Q is average of all previous leaf_value
         #       After you have new leaf value, you need to update self._Q with new average value
-        self._Q = None
+        self._Q = self._Q+1.0*(leaf_value)/self._n_visits - 1.0*(self._Q) / self._n_visits
+        #print("Q:",self._Q)
 
 
     def update_recursive(self, leaf_value):
@@ -87,8 +91,18 @@ class TreeNode(object):
         #    self._u = 1000000000 # arbitary big number
         # else:
         #    (the normal equation here)
-        self._u = None
-        
+        if self._n_visits==0:
+            self._u=1000000000
+        else:
+            #print("parents._n",self._parent._n_visits)
+            #print("_n",self._n_visits)
+            #print("log",np.log(self._parent._n_visits)/self._n_visits)
+            #print("absolute",np.absolute(np.log(self._parent._n_visits)/self._n_visits))
+            self._u = 2*np.sqrt(np.absolute(np.log(self._parent._n_visits)/self._n_visits))
+        #self._u = None
+        #print ("q",self._Q)
+        #print ("u",self._u)
+        #print ("q+u",self._Q + self._u)
         return self._Q + self._u
 
     def is_leaf(self):
